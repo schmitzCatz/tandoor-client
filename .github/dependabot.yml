@@ -1,0 +1,76 @@
+version: 2
+updates:
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      day: "monday"
+      time: "06:00"
+      timezone: "Europe/Berlin"
+    labels:
+      - "dependencies"
+      - "gradle"
+    commit-message:
+      prefix: "deps"
+      include: scope
+    pull-request-branch-name:
+      separator: "-"
+    groups:
+      kotlin-minor-path:
+        - "org.jetbrains.kotlin*"
+      update-type:
+        - "minor"
+        - "patch"
+      okhttp-minor-patch:
+        patterns:
+          - "com.squareup.okhttp3*"
+        update-types:
+          - "minor"
+          - "patch"
+      jackson-minor-patch:
+        patterns:
+          - "com.fasterxml.jackson*"
+        update-types:
+          - "minor"
+          - "patch"
+      openapi-minor-patch:
+        patterns:
+          - "org.openapitools*"
+        update-types:
+          - "minor"
+          - "patch"
+      gradle-minor-patch:
+        patterns:
+          - "gradle"
+        update-types:
+          - "minor"
+          - "patch"
+      security-updates:
+        applies-to: "security-updates"
+        patterns:
+          - "*"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Europe/Berlin"
+      labels:
+        - "dependencies"
+        - "github-actions"
+      commit-message:
+        prefix: "ci"
+        include: "scope"
+      pull-request-branch-name:
+        separator: "-"
+    groups:
+      github-actions-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+      security-updates:
+        applies-to: "security-updates"
+        patterns:
+          - "*"

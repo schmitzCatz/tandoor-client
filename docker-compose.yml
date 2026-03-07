@@ -1,0 +1,25 @@
+services:
+  db:
+    image: postgres:14-alpine
+    container_name: db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: recipes
+    ports:
+      - "5432:5432"
+  tandoor:
+    image: vabene1111/recipes
+    container_name: tandoor
+    depends_on:
+      - db
+    ports:
+      - "80:80"
+    environment:
+      SECRET_KEY: development
+      DB_ENGINE: django.db.backends.postgresql
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: recipes

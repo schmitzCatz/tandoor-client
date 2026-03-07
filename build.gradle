@@ -1,0 +1,112 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '2.3.0'
+    id 'org.openapi.generator' version '7.20.0'
+    id 'maven-publish'
+}
+
+group = 'net.octosystems.tandoor'
+version = '1.0.0'
+
+def openApiSpec = file("$rootDir/src/main/resources/api.yaml")
+def generatedDir = file("$rootDir/src/generated")
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            groupId = project.group
+            artifactId = 'tandoor-client'
+            version = project.version
+            pom {
+                name = 'tandoor-client'
+                description = 'Generated Kotlin client for the Tandoor API'
+            }
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name = "GitHubPackages"
+        url = uri("https://maven.pkg.github.com/schmitz-catz/tandoor-client")
+        credentials {
+            username = System.getenv("GITHUB_ACTOR")
+            password = System.getenv("GITHUB_TOKEN")
+        }
+    }
+}
+
+dependencies {
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib'
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.12.0'
+    implementation 'tools.jackson.module:jackson-module-kotlin:3.1.0'
+    implementation 'tools.jackson.datatype:jackson-datatype-jsr310:3.0.0-rc2'
+    implementation 'jakarta.annotation:jakarta.annotation-api:3.0.0'
+
+    testImplementation 'org.jetbrains.kotlin:kotlin-test'
+}
+
+kotlin {
+    jvmToolchain(21)
+    sourceSets {
+        main {
+            kotlin.srcDir(generatedDir)
+        }
+    }
+}
+
+openApiGenerate {
+    generatorName = 'kotlin'
+    inputSpec = openApiSpec.absolutePath
+    outputDir = generatedDir.absolutePath
+
+    packageName = "net.octosystems.tandoor.client"
+    apiPackage = "net.octosystems.tandoor.client.api"
+    modelPackage = "net.octosystems.tandoor.client.model"
+    invokerPackage = "net.octosystems.tandoor.client.invoker"
+
+    configOptions = [
+            dateLibrary         : 'java8',
+            serializationLibrary: 'jackson',
+            library             : 'jvm-okhttp4',
+            enumPropertyNaming  : 'UPPERCASE'
+    ]
+
+    globalProperties = [
+            modelDocs : 'false',
+            apiDocs   : 'false',
+            modelTests: 'false',
+            apiTests  : 'false'
+    ]
+
+    skipValidateSpec = false
+    generateModelTests = false
+    generateApiTests = false
+}
+
+test {
+    useJUnitPlatform()
+}
+
+tasks.named('compileKotlin') {
+    dependsOn('openApiGenerate')
+}
+tasks.named("openApiGenerate") {
+    dependsOn("cleanOpenApiGenerated")
+    inputs.file(openApiSpec)
+    outputs.dir(generatedDir)
+}
+tasks.named("clean") {
+    dependsOn("cleanOpenApiGenerated")
+}
+tasks.register("cleanOpenApiGenerated", Delete) {
+    delete generatedDir
+}
+
