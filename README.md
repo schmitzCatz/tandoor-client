@@ -6,6 +6,23 @@
 
 ## Usage
 
+```groovy
+repositories {
+    mavenCentral()
+    maven {
+        url = uri("https://maven.pkg.github.com/OWNER/REPOSITORY")
+        credentials {
+            username = findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
+            password = findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
+        }
+    }
+}
+
+dependencies {
+    implementation "net.octosystems.tandoor:tandoor-client:0.1.0"
+}
+```
+
 ## Configuration
 
 ## Contribution

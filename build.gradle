@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'net.octosystems.tandoor'
-version = '1.0.0'
+version = System.getenv("RELEASE_VERSION") ?: "0.0.0-SNAPSHOT"
 
 def openApiSpec = file("$rootDir/src/main/resources/api.yaml")
 def generatedDir = file("$rootDir/src/generated")
